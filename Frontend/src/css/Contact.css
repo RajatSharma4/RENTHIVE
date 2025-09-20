@@ -1,0 +1,146 @@
+/* From Uiverse.io by ammarsaa */ 
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+  
+  padding: 20px;
+  border-radius: 20px;
+  position: relative;
+ background-color: #e3e3e3;
+  color: black;
+  border: 1px solid #333;
+  box-shadow: 0px 0px 10px rgb(81, 74, 92);
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -1px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 30px;
+  color: #132642;
+}
+
+.title::before {
+  width: 18px;
+  height: 18px; 
+}
+
+.title::after {
+  width: 18px;
+  height: 18px;
+  animation: pulse 1s linear infinite;
+}
+
+.title::before,
+.title::after {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  left: 0px;
+  background-color: #132642;
+}
+
+.message, 
+.signin {
+  font-size: 14.5px;
+  color: rgba(18, 14, 14, 0.7);
+}
+
+.signin {
+  text-align: center;
+}
+
+.signin a:hover {
+  text-decoration: underline royalblue;
+}
+
+.signin a {
+  color: #52633b;
+}
+
+.flex {
+  display: flex;
+  width: 100%;
+  gap: 5px;
+  margin-top: -10px;
+}
+
+.form label {
+  position: relative;
+}
+
+.form label .input {
+  background-color: 	#f0f3f6;
+  color: black;
+  width: 100%;
+  padding: 15px 02px 02px 5px;
+  outline: 0;
+  border: 2px solid rgba(17, 15, 15, 0.397);
+  border-radius: 10px;
+}
+
+.form label .input + span {
+  color: black;
+  position: absolute;
+  left: 10px;
+  top: 0px;
+  font-size: 0.9em;
+  cursor: text;
+  transition: 0.3s ease;
+}
+
+.form label .input:placeholder-shown + span {
+  top: 25px;
+  font-size: 0.9em;
+}
+
+.form label .input:focus + span,
+.form label .input:valid + span {
+  color: black;
+  top: 0px;
+  font-size: 0.7em;
+  font-weight: 600;
+}
+
+.input {
+  font-size: medium;
+}
+
+.submit {
+  border: none;
+  outline: none;
+  padding: 10px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  transform: .3s ease;
+  background-color: #132642;
+}
+
+.submit:hover {
+  background-color: rgb(13, 63, 51);
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
