@@ -1,7 +1,7 @@
 import express from "express"
 import commonRouter from "./router/common_Router.js";
 import cors from "cors"
-import { dbConnect } from "./database/dbinfo.js";
+import { dbConnect } from "./database/dbInfo.js";
 import userRouter from "./router/user_Router.js";
 import adminRouter from "./router/admin_Router.js"
 import ownerRouter from "./router/owner_Router.js";
