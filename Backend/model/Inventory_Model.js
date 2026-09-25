@@ -1,55 +1,48 @@
-import ProductModel from './Product_Model.js';
 import mongoose from 'mongoose'
+import ProductModel from './Product_Model.js';
+
 const inventorySchema = new mongoose.Schema({
-
-
   product: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: ProductModel, // Reference to Product model
+    ref: ProductModel,
     required: true
   },
-
   userPhone: {
     type: String,
-    maxlength: 13,
-    required: true
+    required: true,
+    trim: true
   },  
-
+  userEmail: {
+    type: String,
+    default: "",
+    trim: true
+  },
   ownerEmail: {
     type: String,
-    maxlength: 255,
     required: true,
-
+    trim: true
   },
   duration: {
     type: String,
-    maxlength: 50,
     required: true
   },
   returnDate: {
     type: String,
-    maxlength: 10,
     default: null
   },
   idProof: {
     type: String,
-    default: "",
-    required: true
+    default: ""
   },
   productStatus: {
     type: String,
-    maxlength: 50,
     default: "rented"
   },
   rentedDate: {
     type: Date,
     default: Date.now
   }
-
-
 });
-
-// module.exports = mongoose.model('Inventory', inventorySchema);
 
 const InventoryModel = mongoose.model('Inventory', inventorySchema)
 export default InventoryModel

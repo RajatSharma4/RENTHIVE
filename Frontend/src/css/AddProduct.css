@@ -1,94 +1,95 @@
+/* ==========================================================================
+   RentHive - Add Product Form Styles
+   Spacious, responsive owner listing creation card
+   ========================================================================== */
+
 .container2 {
-  max-width: 350px;
-  background: #F8F9FD;
-  background: linear-gradient(0deg, rgb(255, 255, 255) 0%, rgb(244, 247, 251) 100%);
-  border-radius: 40px;
-  padding: 25px 35px;
-  border: 5px solid rgb(255, 255, 255);
-  box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 0px 30px ;
-  margin: 20px;
-  margin-top: 15vh;
+  width: 100%;
+  max-width: 580px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+  margin: 1.5rem auto;
 }
-@media(max-width: 600px){
-    .container2{
-        margin-top: 0;
-        margin-left: 20px;
-    }
-}
-@media(max-width: 600px){
-    .itemSelect option{
-        /* max-width: 40%; */
-        font-size: 14px;
-        padding: 4px;
-    }
-}
-
-
 
 .heading {
   text-align: center;
-  font-weight: 900;
-  font-size: 30px;
-  color: rgb(16, 137, 211);
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .form2 {
-  margin-top: 20px;
-}
-.form2 label{
-    font-weight: 500;
-    color:  rgb(170, 170, 170);
-    margin-left: 10px;
-    margin-top: 40px;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.form2 .input {
+.form2 label {
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.form2 .input, 
+.form2 select.input,
+.form2 textarea.input {
   width: 100%;
-  background: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 20px;
-  margin-top: 15px;
-  box-shadow: #cff0ff 0px 10px 10px -5px;
-  border-inline: 2px solid transparent;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-family: inherit;
+  transition: all 0.2s ease;
 }
 
-.form2 .input::-moz-placeholder {
-  color: rgb(170, 170, 170);
-}
-
-.form2 .input::placeholder {
-  color: rgb(170, 170, 170);
-}
-
-.form2 .input:focus {
+.form2 .input:focus,
+.form2 select.input:focus,
+.form2 textarea.input:focus {
   outline: none;
-  border-inline: 2px solid #12B1D1;
+  background: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
-
 
 .form2 .login-button {
-  display: block;
-  
-  width: 50%;
-  height: 40px;
-  font-weight: bold;
-  background: linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%);
-  color: white;
- 
-  margin: 20px auto;
-  border-radius: 20px;
-  box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 20px 10px -15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  color: #ffffff;
+  margin: 1rem 0 0 0;
+  border-radius: 9999px;
   border: none;
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.form2 .login-button:hover {
-  transform: scale(1.03);
-  box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px;
+.form2 .login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
-.form2 .login-button:active {
-  transform: scale(0.95);
-  box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 15px 10px -10px;
+.form2 .login-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 576px) {
+  .container2 {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px;
+  }
 }

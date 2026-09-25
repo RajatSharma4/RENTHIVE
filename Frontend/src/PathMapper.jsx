@@ -1,5 +1,5 @@
-// import React from 'react'
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import App from './App'
 import About_Us from './components/About_Us'
 import Contact from './components/Contact'
@@ -14,7 +14,7 @@ import UserLogin from "./components/user/UserLogin"
 import UserHome from "./components/user/UserHome"
 import OwnerHome from "./components/owner/OwnerHome"
 import AdminHome from "./components/admin/AdminHome"
-import {ToastContainer} from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import AddProduct from "./components/owner/AddProduct"
 import ViewProducts from "./components/user/ViewProducts"
@@ -27,42 +27,112 @@ import UserInvoiceData from "./components/user/UserInvoiceData"
 import AllUsers from "./components/admin/AllUsers"
 import AllOwners from "./components/admin/AllOwners"
 
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/common/ProtectedRoute'
+
 const PathMapper = () => {
   return (
-    <>
-      
-      <ToastContainer/>
-
+    <AuthProvider>
+      <ToastContainer position="top-right" autoClose={3000} />
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<App />}></Route>
-          <Route path='/aboutus' element={<About_Us />}></Route>
-          <Route path='/contact' element={<Contact />}></Route>
-          <Route path='/feedback' element={<Feedback />}></Route>
-          <Route path='/allContacts' element={<AllContacts />}></Route>
-          <Route path='/allFeedbacks' element={<AllFeedbacks />}></Route>
-          <Route path='/register' element={<UserRegistration />}></Route>
-          <Route path='/ownerRegister' element={<OwnerRegistration />}></Route>  
-          <Route path='/adminLogin' element={<AdminLogin />}></Route>
-          <Route path='/ownerLogin' element={<OwnerLogin />}></Route>
-          <Route path='/userLogin' element={<UserLogin />}></Route>
-          <Route path='/userHome' element={<UserHome />}></Route>
-          <Route path='/ownerHome' element={<OwnerHome />}></Route>
-          <Route path='/adminHome' element={<AdminHome/>}></Route>
-          <Route path='/addProduct' element={<AddProduct/>}></Route>
-          <Route path='/viewProduct' element={<ViewProducts/>}></Route>
-          <Route path='/myProduct' element={<MyProducts/>}></Route>
-          <Route path='/updateInventory' element={<UpdateInventory/>}></Route>
-          <Route path='/ownerEditProfile' element={<OwnerEditProfile/>}></Route>
-          <Route path='/userEditProfile' element={<UserEditProfile/>}></Route>
-          <Route path='/invoiceData' element={<InvoiceData/>}></Route>
-          <Route path='/userInvoiceData' element={<UserInvoiceData/>}></Route>
-          <Route path='/allUsers' element={<AllUsers/>}></Route>
-          <Route path='/allOwners' element={<AllOwners/>}></Route>
+          {/* Public Routes */}
+          <Route path='/' element={<App />} />
+          <Route path='/aboutus' element={<About_Us />} />
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/viewProduct' element={<ViewProducts />} />
+          <Route path='/register' element={<UserRegistration />} />
+          <Route path='/ownerRegister' element={<OwnerRegistration />} />  
+          <Route path='/userLogin' element={<UserLogin />} />
+          <Route path='/ownerLogin' element={<OwnerLogin />} />
+          <Route path='/adminLogin' element={<AdminLogin />} />
 
+          {/* User Protected Routes */}
+          <Route path='/userHome' element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <UserHome />
+            </ProtectedRoute>
+          } />
+          <Route path='/feedback' element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <Feedback />
+            </ProtectedRoute>
+          } />
+          <Route path='/userInvoiceData' element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <UserInvoiceData />
+            </ProtectedRoute>
+          } />
+          <Route path='/userEditProfile' element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <UserEditProfile />
+            </ProtectedRoute>
+          } />
+
+          {/* Owner Protected Routes */}
+          <Route path='/ownerHome' element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerHome />
+            </ProtectedRoute>
+          } />
+          <Route path='/addProduct' element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <AddProduct />
+            </ProtectedRoute>
+          } />
+          <Route path='/myProduct' element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <MyProducts />
+            </ProtectedRoute>
+          } />
+          <Route path='/updateInventory' element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <UpdateInventory />
+            </ProtectedRoute>
+          } />
+          <Route path='/ownerEditProfile' element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <OwnerEditProfile />
+            </ProtectedRoute>
+          } />
+          <Route path='/invoiceData' element={
+            <ProtectedRoute allowedRoles={['owner']}>
+              <InvoiceData />
+            </ProtectedRoute>
+          } />
+
+          {/* Admin Protected Routes */}
+          <Route path='/adminHome' element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminHome />
+            </ProtectedRoute>
+          } />
+          <Route path='/allContacts' element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AllContacts />
+            </ProtectedRoute>
+          } />
+          <Route path='/allFeedbacks' element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AllFeedbacks />
+            </ProtectedRoute>
+          } />
+          <Route path='/allUsers' element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AllUsers />
+            </ProtectedRoute>
+          } />
+          <Route path='/allOwners' element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AllOwners />
+            </ProtectedRoute>
+          } />
+
+          {/* Fallback */}
+          <Route path='*' element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-    </>
+    </AuthProvider>
   )
 }
 

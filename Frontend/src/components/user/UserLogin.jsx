@@ -1,21 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import Header from '../Header'
 import Footer from '../Footer'
 import '../../css/UserLogin.css'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { ClipLoader } from 'react-spinners'
+import apiClient from '../../api/apiClient'
 import Swal from 'sweetalert2'
-import { Link } from 'react-router-dom'
-
+import { useAuth } from '../../context/AuthContext'
 
 const UserLogin = () => {
-
   const navigate = useNavigate()
-
+  const { login } = useAuth()
+  const [loading, setLoading] = useState(false)
   const [loginData, setLoginData] = useState({ email: "", password: "" })
-
-  const URL = "http://localhost:4000/user/userLogin"
 
   const fetchData = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value })
@@ -23,78 +20,88 @@ const UserLogin = () => {
 
   const submitData = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
-      const serverResponse = await axios.post(URL, loginData)
-      console.log(serverResponse);
-      const msg = serverResponse.data.status
+      const serverResponse = await apiClient.post('/user/userLogin', loginData)
+      const data = serverResponse.data
 
-      if (msg === "success") {
+      if (data.status === "success" || data.success) {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Login Successfull",
+          title: "Login Successful",
           showConfirmButton: false,
           timer: 1500
         });
-        localStorage.setItem("emailKey", serverResponse.data.token)
+
+        login(data.user, data.token, 'user')
         navigate("/userHome")
-      }
-      else {
+      } else {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
-          text: "Something went wrong!",  
-          footer: '<a href="#">Why do I have this issue?</a>'
+          title: "Login Failed",
+          text: data.message || "Invalid email or password",
         });
       }
-
-    }
-    catch (err) {
-      console.log(err);
-
+    } catch (err) {
+      console.error("User login error:", err)
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: err.response?.data?.message || "Invalid email or password. Please try again.",
+      });
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <>
-      <div className='d-flex flex-column min-vh-100'>  
-
+      <div className='d-flex flex-column min-vh-100'>
         <Header />
+        <main className='flex-fill d-flex align-items-center justify-content-center py-5'>
+          <div className="container" style={{ maxWidth: '420px' }}>
+            <div className="heading text-center mb-3">USER LOGIN</div>
+            <form className="form shadow-lg p-4 rounded-4 bg-white" onSubmit={submitData}>
+              <input 
+                required 
+                className="input" 
+                type="email" 
+                name="email" 
+                id="email" 
+                placeholder="E-mail" 
+                onChange={fetchData} 
+                value={loginData.email} 
+              />
+              <input 
+                required 
+                className="input" 
+                type="password" 
+                name="password" 
+                id="password" 
+                placeholder="Password" 
+                onChange={fetchData} 
+                value={loginData.password} 
+              />
+              
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span className="small text-muted">Don't have an account? <Link to="/register" style={{ color: "#12B1D1", fontWeight: 'bold' }}>Register</Link></span>
+              </div>
 
-        <main className='flex-fill'>
-
-
-          <div className="container pt-5 pt-md-2">
-            <div className="heading pb-4 pb-md-2">USER LOGIN</div>
-            <form className="form" onSubmit={submitData}>
-              <input required className="input" type="email" name="email" id="email" placeholder="E-mail" onChange={fetchData} value={loginData.email} />
-              <input required className="input" type="password" name="password" id="password" placeholder="Password" onChange={fetchData} value={loginData.password} />
-                <p>Don't have an account <Link to="/register" style={{color:"#12B1D1"}}>Register here</Link></p>
-              <span className="forgot-password"><a href="#">Forgot Password ?</a></span>
-              <input className="login-button" type="submit" defaultValue="Sign In" />
+              <button
+                type="submit"
+                className="btn w-100 fw-bold login-btn d-flex align-items-center justify-content-center"
+                disabled={loading}
+              >
+                {loading ? <ClipLoader size={20} color="white" /> : "Login"}
+              </button>
             </form>
-
           </div>
         </main>
-
         <Footer />
-
       </div>
-
     </>
   )
 }
 
 export default UserLogin
-
-
-
-
-
-
-
-
-
-
-
-

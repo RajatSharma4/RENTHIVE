@@ -1,79 +1,62 @@
-/* From Uiverse.io by bociKond */ 
+/* ==========================================================================
+   RentHive - Update Inventory Styles
+   Clean, modern styles matching the global design system
+   ========================================================================== */
+
 .inventory-form {
-  --bg-light: #efefef;
-  --bg-dark: #707070;
-  --clr: #58bc82;
-  --clr-alpha: #9c9c9c60;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 300px;
+  max-width: 540px;
+  margin: 0 auto;
 }
 
 .inventory-form .input-span {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .inventory-form input[type="email"],
+.inventory-form input[type="tel"],
 .inventory-form input[type="number"],
 .inventory-form input[type="date"],
-.inventory-form input[type="file"]{
-
-  border-radius: 0.5rem;
-  padding: 0.3rem 0.75rem;
+.inventory-form input[type="file"] {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
   width: 100%;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--clr-alpha);
-  outline: 2px solid var(--bg-dark);
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  color: #0f172a;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
 }
 
-.inventory-form input[type="email"]:focus,
-.inventory-form input[type="password"]:focus {
-  outline: 2px solid var(--clr);
-}
-
-.label {
-  align-self: flex-start;
-  color: var(--clr);
-  font-weight: 600;
+.inventory-form input:focus {
+  border-color: #4f46e5;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
 .inventory-form .submit {
-  padding: 1rem 0.75rem;
+  padding: 0.85rem 1.5rem;
   width: 100%;
-  /* display: flex;
-  align-items: center; */
   text-align: center;
-  
-  gap: 0.5rem;
-  border-radius: 3rem;
-  background-color: var(--bg-dark);
-  color: var(--bg-light);
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  color: #ffffff;
   border: none;
   cursor: pointer;
-  transition: all 300ms;
+  transition: all 0.25s ease;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
 }
 
 .inventory-form .submit:hover {
-  background-color: var(--clr);
-  color: var(--bg-dark);
-}
-
-.span {
-  text-decoration: none;
-  color: var(--bg-dark);
-}
-
-.span a {
-  color: var(--clr);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }

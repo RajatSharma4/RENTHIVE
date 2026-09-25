@@ -1,140 +1,211 @@
-import React from 'react'
-import { useLocation } from 'react-router-dom'
-import { useState, useRef } from 'react'
-import axios from 'axios'
+import React, { useState, useRef, useEffect } from 'react'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
+import OwnerHeader from './OwnerHeader'
+import apiClient from '../../api/apiClient'
 import Swal from 'sweetalert2'
+import { useAuth } from '../../context/AuthContext'
 import '../../css/UpdateInventory.css'
 
- 
 const UpdateInventory = () => {
   const fileInputRef = useRef(null)
-
-  // const product = JSON.parse(localStorage.getItem("product"));
-  // const productId = product._id;
-
-
   const locationRef = useLocation()
+  const navigate = useNavigate()
+  const { user } = useAuth()
 
-  const { productInfo } = locationRef.state
-  const ownerEmail=localStorage.getItem("emailKey")
-
+  const productInfo = locationRef.state?.productInfo
+  const ownerEmail = user?.email || localStorage.getItem("emailKey") || ""
 
   const [inventoryData, setInventoryData] = useState({
     userPhone: "",
     ownerEmail: ownerEmail,
-    duration: "",
+    duration: "1",
     returnDate: "",
-    idProof: "",
-    rentedDate: ""
+    rentedDate: new Date().toISOString().split('T')[0]
   })
-
   const [idProof, setIdProof] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-
+  useEffect(() => {
+    if (!productInfo) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Select a Product',
+        text: 'Please select a product from your listings to register an offline rental.',
+        confirmButtonText: 'Go to My Products'
+      }).then(() => {
+        navigate('/myProduct')
+      })
+    }
+  }, [productInfo, navigate])
 
   function fetchData(e) {
-    const { name, value, type, files } = e.target; //destructuring target object
-
+    const { name, value, type, files } = e.target;
     if (type === "file") {
-      console.log(files[0]);
       setIdProof(files[0]);
-      
-    }
-    else {
+    } else {
       setInventoryData({ ...inventoryData, [name]: value })
     }
   }
 
   async function submitData(e) {
     e.preventDefault()
+    if (!productInfo) return
 
+    setLoading(true)
     const formData = new FormData();
-
-    for(const key in inventoryData){
-      formData.append(key, inventoryData[key]) //to set all value from object
-  }
-  formData.append("product", productInfo._id)
-
+    for (const key in inventoryData) {
+      formData.append(key, inventoryData[key])
+    }
+    formData.append("product", productInfo._id)
     if (idProof) {
       formData.append("idProof", idProof);
     }
 
-    for(let [key, value] of formData.entries()){
-      console.log(`${key}:`, value);
-      
-  }
-
-  const URL = "http://localhost:4000/owner/updateInventory"
-
-
     try {
-      const params={pid:productInfo._id}
-      const serverResponse = await axios.post(URL, formData,{params})
-      console.log(serverResponse.data.message);
-
+      const serverResponse = await apiClient.post('/owner/updateInventory', formData, {
+        params: { pid: productInfo._id }
+      })
 
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: serverResponse.data.message,
+        title: serverResponse.data.message || "Inventory Updated Successfully",
         showConfirmButton: false,
         timer: 1500
       });
 
-      setInventoryData({
-        userPhone: "",
-        ownerEmail: ownerEmail,
-        duration: "",
-        returnDate: "",
-        idProof: "",
-        rentedDate: ""
+      setTimeout(() => {
+        navigate('/myProduct')
+      }, 1000)
+    } catch (err) {
+      console.error("Update inventory error:", err)
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: err.response?.data?.message || "Could not register rental inventory."
       })
-
-      setIdProof(null)
-      fileInputRef.current.value = null;
-
+    } finally {
+      setLoading(false)
     }
-    catch (err) {
-      console.log(err);
+  }
 
-    }
-
+  if (!productInfo) {
+    return (
+      <>
+        <OwnerHeader />
+        <div className="container text-center py-5">
+          <p>Redirecting to products...</p>
+        </div>
+      </>
+    )
   }
 
   return (
     <>
-      <div className='bg-dark min-vh-100'>
-        <h1 className='text-success text-center'>UPDATE YOUR INVENTORY</h1>
-        {/* <h1>ProductId is: {productInfo._id}</h1> */}
+      <OwnerHeader />
+      <div className='bg-light min-vh-100 py-5'>
+        <div className="container">
+          <div className="text-center mb-4">
+            <h2 className='text-primary fw-bold'>Record Offline Rental Transaction</h2>
+            <p className="text-muted">Register an in-person or direct rental to maintain audit logs and update product availability.</p>
+          </div>
 
-        <div className='d-flex flex-column justify-content-center align-items-center mt-5'>
-          <form className="inventory-form" onSubmit={submitData}>
-            <span className="input-span">
-              <label htmlFor="userPhone" className="label">UserPhone</label>
-              <input type="number" name="userPhone" id="userPhone" onChange={fetchData} value={inventoryData.userPhone} /></span>
+          <div className='row justify-content-center'>
+            <div className='col-md-7 col-lg-6'>
+              <div className="card shadow-lg border-0 rounded-4 p-4 bg-white">
+                <div className="alert alert-secondary py-2 small mb-4">
+                  <i className="fas fa-tag me-1"></i> Registering rental for: <b>{productInfo.productName}</b> (₹{productInfo.productPrice}/day)
+                </div>
 
-            <span className="input-span">
-              <label htmlFor="ownerEmail" className="label">OwnerEmail</label>
-              <input type="email" name="ownerEmail" id="email" onChange={fetchData} value={inventoryData.ownerEmail} /></span>
+                <form onSubmit={submitData}>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Renter Phone Number</label>
+                    <input 
+                      type="tel" 
+                      className="form-control" 
+                      name="userPhone" 
+                      required 
+                      onChange={fetchData} 
+                      value={inventoryData.userPhone} 
+                      placeholder="e.g. 9876543210" 
+                    />
+                  </div>
 
-            <span className="input-span">
-              <label htmlFor="duration" className="label">Duration In Days</label>
-              <input type="number" name="duration" id="duration" onChange={fetchData} value={inventoryData.duration}/></span>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Owner Contact Email</label>
+                    <input 
+                      type="email" 
+                      className="form-control" 
+                      name="ownerEmail" 
+                      required 
+                      onChange={fetchData} 
+                      value={inventoryData.ownerEmail} 
+                    />
+                  </div>
 
-            <span className="input-span">
-              <label htmlFor="returnDate" className="label">ReturnDate</label>
-              <input type="date" name="returnDate" id="returnDate" onChange={fetchData} value={inventoryData.returnDate} /></span>
+                  <div className="row g-2 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Duration (Days)</label>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        className="form-control" 
+                        name="duration" 
+                        required 
+                        onChange={fetchData} 
+                        value={inventoryData.duration} 
+                      />
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Rented Date</label>
+                      <input 
+                        type="date" 
+                        className="form-control" 
+                        name="rentedDate" 
+                        required 
+                        onChange={fetchData} 
+                        value={inventoryData.rentedDate} 
+                      />
+                    </div>
+                  </div>
 
-            <span className="input-span">
-              <label htmlFor="idProof" className="label">IdProof</label>
-              <input type="file" name="idProof" id="file" accept='image/*,application/pdf' onChange={fetchData} ref={fileInputRef} /></span>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Expected Return Date</label>
+                    <input 
+                      type="date" 
+                      className="form-control" 
+                      name="returnDate" 
+                      required 
+                      onChange={fetchData} 
+                      value={inventoryData.returnDate} 
+                    />
+                  </div>
 
-            <span className="input-span">
-              <label htmlFor="rentedDate" className="label">RentedDate</label>
-              <input type="date" name="rentedDate" id="rentedDate" onChange={fetchData} value={inventoryData.rentedDate}/></span>
-            {/* <input className="submit" type="submit" defaultValue="Log in" /> */}
-            <button className='submit' type='submit'>Submit </button>
-          </form>
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold">Renter ID Proof Document (Image or PDF)</label>
+                    <input 
+                      type="file" 
+                      className="form-control" 
+                      name="idProof" 
+                      accept='image/*,application/pdf' 
+                      onChange={fetchData} 
+                      ref={fileInputRef} 
+                    />
+                    <small className="text-muted">Aadhaar, Passport, or Driving License verification</small>
+                  </div>
+
+                  <div className="d-grid gap-2">
+                    <button className='btn btn-primary fw-bold py-2' type='submit' disabled={loading}>
+                      {loading ? "Recording Transaction..." : "Confirm & Update Inventory"}
+                    </button>
+                    <Link to="/myProduct" className="btn btn-light btn-sm text-center">
+                      Cancel
+                    </Link>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

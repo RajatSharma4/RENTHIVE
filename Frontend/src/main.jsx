@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import PathMapper from './pathMapper'
+import PathMapper from './PathMapper.jsx'
 
 
 

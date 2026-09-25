@@ -1,37 +1,36 @@
 import React from 'react'
 
-const FeedbackDetails = ({feedbackArray}) => {
+const FeedbackDetails = ({ feedbackArray }) => {
   return (
-   <>
-    <table className="table table-success table-striped">
-    <thead>
-        <tr className='table-dark text-light' >
-            <th>FullName</th>
+    <div className="table-responsive">
+      <table className="table table-hover align-middle mb-0">
+        <thead className="table-light">
+          <tr>
+            <th>User</th>
             <th>Email</th>
             <th>Rating</th>
             <th>Remarks</th>
             <th>Date</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        {
-           feedbackArray.map((feedback)=>{
-                return(
-                    <tr key={feedback._id}>
-                        <td>{feedback.fullname}</td>            
-                        <td>{feedback.email}</td>
-                        <td>{feedback.rating}</td>
-                        <td>{feedback.remarks}</td>
-                        <td>{feedback.date}</td>
-                    </tr>
-                )
-            })
-        }
-    </tbody>
-  </table>
-
-   </>
+          </tr>
+        </thead>
+        <tbody>
+          {feedbackArray.map((f) => {
+            const stars = "⭐".repeat(Math.max(1, Math.min(5, Number(f.rating) || 5)))
+            return (
+              <tr key={f._id}>
+                <td className="fw-semibold">{f.fullname}</td>
+                <td><a href={`mailto:${f.email}`} className="text-decoration-none">{f.email}</a></td>
+                <td><span title={`${f.rating} Stars`}>{stars}</span></td>
+                <td style={{ maxWidth: '350px' }}>{f.remarks}</td>
+                <td className="text-muted small">
+                  {f.date ? new Date(f.date).toLocaleDateString() : 'N/A'}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

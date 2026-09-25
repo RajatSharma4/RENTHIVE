@@ -1,38 +1,33 @@
 import React from 'react'
 
-const ContactDetails = ({contactArray}) => {
+const ContactDetails = ({ contactArray }) => {
   return (
-  <>
-  <table className="table table-success table-striped">
-    <thead>
-        <tr className='table-dark text-light' >
-            <th>FirstName</th>
-            <th>LastName</th>
+    <div className="table-responsive">
+      <table className="table table-hover align-middle mb-0">
+        <thead className="table-light">
+          <tr>
+            <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Message</th>
-            <th>Date</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        {
-            contactArray.map((contact)=>{
-                return(
-                    <tr key={contact._id}>
-                        <td>{contact.firstname}</td>
-                        <td>{contact.lastname}</td>
-                        <td>{contact.email}</td>
-                        <td>{contact.phone}</td>
-                        <td>{contact.message}</td>
-                        <td>{contact.date}</td>
-                    </tr>
-                )
-            })
-        }
-    </tbody>
-  </table>
-  </>
+            <th>Received Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {contactArray.map((c) => (
+            <tr key={c._id}>
+              <td className="fw-semibold">{c.firstname} {c.lastname}</td>
+              <td><a href={`mailto:${c.email}`} className="text-decoration-none">{c.email}</a></td>
+              <td>{c.phone || 'N/A'}</td>
+              <td style={{ maxWidth: '300px' }} className="text-truncate">{c.message}</td>
+              <td className="text-muted small">
+                {c.date ? new Date(c.date).toLocaleString() : 'N/A'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

@@ -1,12 +1,16 @@
 import React, { useState, useRef } from 'react'
-import axios from 'axios'
+import { useNavigate, Link } from 'react-router-dom'
 import Header from '../Header'
 import Footer from '../Footer'
 import '../../css/UserRegistration.css'
-  
-const UserRegistration = () => {
+import { ClipLoader } from 'react-spinners'
+import apiClient from '../../api/apiClient'
+import Swal from 'sweetalert2'
 
+const UserRegistration = () => {
     const fileInputRef = useRef(null)
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
     const [regData, setRegData] = useState({
         email: "",
@@ -18,51 +22,36 @@ const UserRegistration = () => {
     })
     const [pic, setPic] = useState(null)
 
-
-
     const fetchData = (e) => {
-        const { name, value, type, files } = e.target; //destructuring target object
-
+        const { name, value, type, files } = e.target;
         if (type === "file") {
-            console.log(files[0]);
             setPic(files[0]);
-
-        }
-        else {
+        } else {
             setRegData({ ...regData, [name]: value })
         }
-
-    }; //fetch data close
+    };
 
     const submitData = async (e) => {
-
         e.preventDefault()
+        setLoading(true)
 
-
-        //setting all data in formData object
         const formData = new FormData();
-
         for (const key in regData) {
-            formData.append(key, regData[key]) //to set all value from object
+            formData.append(key, regData[key])
         }
-
         if (pic) {
             formData.append("pic", pic);
         }
 
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value);
-
-        }
-
-        const URL = "http://localhost:4000/user/register"
-
         try {
-
-            const serverResponse = await axios.post(URL, formData)
-            console.log(serverResponse);
-
-            alert(serverResponse.data.message)
+            const serverResponse = await apiClient.post('/user/register', formData)
+            Swal.fire({
+                icon: 'success',
+                title: 'Registration Successful!',
+                text: serverResponse.data.message || 'You can now log in to your account.',
+                timer: 2000,
+                showConfirmButton: false
+            })
 
             setRegData({
                 email: "",
@@ -72,62 +61,72 @@ const UserRegistration = () => {
                 city: "",
                 address: ""
             })
-
             setPic(null)
+            if (fileInputRef.current) fileInputRef.current.value = null
 
-            fileInputRef.current.value = null;   //it is use to clear file field 
-
-
+            setTimeout(() => {
+                navigate('/userLogin')
+            }, 1500)
+        } catch (err) {
+            console.error("Registration error:", err)
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Failed',
+                text: err.response?.data?.message || 'Something went wrong during registration.'
+            })
+        } finally {
+            setLoading(false)
         }
-        catch (err) {
-            console.log(err);
-
-        }
-
-    }  //submit data close
+    }
 
     return (
         <>
-
             <div className='d-flex flex-column min-vh-100'>
                 <Header />
-                <main className='flex-fill d-flex justify-content-center'>
+                <main className='flex-fill d-flex justify-content-center align-items-center py-5'>
+                    <div className='container'>
+                        <div className='row align-items-center justify-content-center g-5'>
+                            <div className='col-lg-5 text-center d-none d-lg-block'>
+                                <img 
+                                    src="/RegisterPic.png" 
+                                    alt="Register on RentHive" 
+                                    className="img-fluid rounded-4 shadow-lg"
+                                    style={{ maxHeight: '420px', width: '100%', objectFit: 'contain' }}
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = "/Home.jpg";
+                                    }}
+                                />
+                                <h4 className="mt-3 fw-bold text-success">Join RentHive as a Renter</h4>
+                                <p className="text-muted">Access thousands of luxury & daily items without high upfront costs.</p>
+                            </div>
 
+                            <div className='col-lg-5 col-md-8'>
+                                <div className="container1 shadow-lg p-4 rounded-4 bg-white">
+                                    <div className="heading text-center mb-3">User Registration</div>
+                                    <form className="form1" onSubmit={submitData}>
+                                        <input className="input" type="text" name="name" value={regData.name} onChange={fetchData} placeholder="Full Name" required />
+                                        <input className="input" type="email" name="email" value={regData.email} onChange={fetchData} placeholder="E-mail Address" required />
+                                        <input className="input" type="password" name="password" value={regData.password} onChange={fetchData} placeholder="Password" required />
+                                        <input className="input" type="tel" name="phone" value={regData.phone} onChange={fetchData} placeholder="Phone Number" required />
+                                        <input className="input" type="text" name="city" value={regData.city} onChange={fetchData} placeholder="City" required />
+                                        <input className="input" type="text" name="address" value={regData.address} onChange={fetchData} placeholder="Street Address" required />
 
-                    <div className='d-flex flex-wrap' style={{ gap: "20vw" }}>
+                                        <label className="form-label small text-muted mt-2 mb-0">Profile Picture (Optional)</label>
+                                        <input className="input" type="file" ref={fileInputRef} onChange={fetchData} accept="image/*" />
 
-                        <div className='my-auto mx-auto'>
-                            <img src="/RegisterPic.png" alt="" height={400} width={400} />
-                        </div>
+                                        <button className="login-button mt-3" type="submit" disabled={loading}>
+                                            {loading ? <ClipLoader size={20} color="white" /> : "Sign Up"}
+                                        </button>
 
-
-                        <div className=''>
-                            <div className="container1 ">
-                                <div className="heading">Registration</div>
-                                <form action="" className="form1" onSubmit={submitData}>
-                                    <input className="input" type="email" name="email" value={regData.email} onChange={fetchData} id="email" placeholder="E-mail" required />
-
-                                    <input className="input" type="password" name="password" value={regData.password} onChange={fetchData} id="password" placeholder="Password" required />
-
-                                    <input className="input" type="name" name="name" id="name" value={regData.name} onChange={fetchData} placeholder="Name" required />
-
-                                    <input className="input" type="phone" name="phone" id="phone" value={regData.phone} onChange={fetchData} placeholder="Phone" required />
-
-                                    <input className="input mb-3" type="City" name="city" id="city" value={regData.city} onChange={fetchData} placeholder="City" required />
-
-                                    <label htmlFor="file">Upload Pic</label>
-                                    <input className='input' type="file" id='file' name='pic' ref={fileInputRef} onChange={fetchData} accept='images/*,application/pdf' placeholder='Upload Image or Document' required />
-
-                                    <textarea className='input' name="address" id="address" placeholder='Address' value={regData.address} onChange={fetchData}  ></textarea>
-
-                                    <input className="login-button" type="submit" value="Submit" />
-
-                                </form>
-
+                                        <p className="text-center mt-3 small">
+                                            Already have an account? <Link to="/userLogin" className="text-success fw-bold">Login here</Link>
+                                        </p>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </main>
                 <Footer />
             </div>

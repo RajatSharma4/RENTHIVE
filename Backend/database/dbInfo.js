@@ -1,18 +1,15 @@
 import mongoose from 'mongoose'
+import dotenv from 'dotenv';
+dotenv.config();
 
-const DBURL = `mongodb+srv://rajatmern:rajatcluster@mycluster.wwkkig5.mongodb.net/project_db`
+const DBURL = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/renthive";
 
-export const dbConnect = async()=>{
-    try{
-     const connection = await mongoose.connect(DBURL)
-     console.log(`database connection establish successfully`);
-     
-    }
-    catch(err){
-        console.log(err);
-        
+export const dbConnect = async () => {
+    try {
+        const connection = await mongoose.connect(DBURL);
+        console.log(`database connection establish successfully`);
+        return connection;
+    } catch (err) {
+        console.error("Database connection error:", err.message);
     }
 }
-
-
-

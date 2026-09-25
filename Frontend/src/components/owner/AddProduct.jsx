@@ -1,22 +1,17 @@
 import React, { useState, useRef } from 'react'
-import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 import OwnerHeader from './OwnerHeader'
 import '../../css/AddProduct.css'
 import Swal from 'sweetalert2'
-
-
+import apiClient from '../../api/apiClient'
+import { useAuth } from '../../context/AuthContext'
+import { ClipLoader } from 'react-spinners'
 
 function AddProduct() {
-
   const fileInputRef = useRef(null)
-
-
-  const URL = "http://localhost:4000/owner/addProduct"
-
-  const owner = JSON.parse(localStorage.getItem("owner"));
-  const ownerId = owner._id;
-
-
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
   const [productData, setProductData] = useState({
     productName: "",
@@ -26,57 +21,37 @@ function AddProduct() {
   })
   const [pic, setPic] = useState(null)
 
-
-
   const fetchData = (e) => {
-    const { name, value, type, files } = e.target; //destructuring target object
-
+    const { name, value, type, files } = e.target;
     if (type === "file") {
-      console.log(files[0]);
       setPic(files[0]);
-
-    }
-    else {
+    } else {
       setProductData({ ...productData, [name]: value })
     }
-
-  }; //fetch data close
+  };
 
   const submitData = async (e) => {
-
     e.preventDefault()
+    setLoading(true)
 
-    //setting all data in formData object
+    const ownerId = user?._id || user?.userId || localStorage.getItem('ownerId')
     const formData = new FormData();
-
     for (const key in productData) {
-      formData.append(key, productData[key]) //to set all value from object
+      formData.append(key, productData[key])
     }
-    formData.append("owner", ownerId)
-
+    if (ownerId) {
+      formData.append("owner", ownerId)
+    }
     if (pic) {
       formData.append("pic", pic);
     }
 
-
-
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-
-    }
-
-
     try {
-
-      const serverResponse = await axios.post(URL, formData)
-      console.log(serverResponse);
-
-      // alert(serverResponse.data.message)
-
+      const serverResponse = await apiClient.post('/owner/addProduct', formData)
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: "Product Added Successfull",
+        title: serverResponse.data.message || "Product Added Successfully",
         showConfirmButton: false,
         timer: 1500
       });
@@ -88,75 +63,133 @@ function AddProduct() {
         productPrice: "",
       })
       setPic(null)
-      fileInputRef.current.value = null;   //it is use to clear file field 
+      if (fileInputRef.current) fileInputRef.current.value = null
 
-
-
+      setTimeout(() => {
+        navigate('/myProduct')
+      }, 1000)
+    } catch (err) {
+      console.error("Add product error:", err)
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Add Product",
+        text: err.response?.data?.message || "Please check required fields and try again."
+      })
+    } finally {
+      setLoading(false)
     }
-    catch (err) {
-      console.log(err);
-
-    }
-
-  }  //submit data close
-
+  }
 
   return (
     <>
-      <div>
-        <div className='d-flex flex-column min-vh-100'>
-          <OwnerHeader />
-          <main className='flex-fill d-flex justify-content-center'>
-
-
-            <div className='d-flex flex-wrap flex-md-nowrap' style={{ gap: "5vw" }}>
-
-              <div className='my-auto mx-auto mt-5 mt-md-auto'>
-                <div className='d-flex flex-column flex-wrap mt-5 mt-md-0 text-center'>
-                  <h2 className="fw-bold display-6">Showcase Premium Listings</h2>
-                  <p className="text-muted fs-5">
-                    Unlock the spotlight for your high-end property or product. <br />
-                    List with RentHive and attract quality renters who value luxury and reliability.
-                  </p>
-                  <ul className="list-unstyled fs-6">
-                    <li>✔️ Verified, High-Intent Tenants</li>
-                    <li>✔️ Enhanced Visibility for Premium Spaces</li>
-                    <li>✔️ Easy, Secure Listing Management</li>
+      <div className='d-flex flex-column min-vh-100 bg-light'>
+        <OwnerHeader />
+        <main className='flex-fill py-5'>
+          <div className='container'>
+            <div className='row align-items-center justify-content-center g-5'>
+              <div className='col-lg-5 text-center text-lg-start'>
+                <h2 className="fw-bold display-6 mb-3">Showcase Premium Listings</h2>
+                <p className="text-muted fs-5">
+                  Unlock the spotlight for your equipment, furniture, or vehicles.
+                  List with RentHive and connect with verified renters.
+                </p>
+                <div className="bg-white p-4 rounded-4 shadow-sm border mt-4">
+                  <h6 className="fw-bold text-primary mb-3">Owner Benefits</h6>
+                  <ul className="list-unstyled mb-0">
+                    <li className="mb-2">✔️ Verified, High-Intent Tenants</li>
+                    <li className="mb-2">✔️ Instant Booking & WhatsApp Integration</li>
+                    <li>✔️ Full Control Over Rental Pricing & Duration</li>
                   </ul>
                 </div>
               </div>
 
-
-              <div>
-                <div className="container2 ">
-                  <div className="heading">Add Products</div>
+              <div className='col-lg-6 col-md-9'>
+                <div className="container2 shadow-lg p-4 rounded-4 bg-white">
+                  <div className="heading text-center mb-3">Add Rental Product</div>
                   <form className="form2" onSubmit={submitData}>
-                    <input className="input" type="productName" name="productName" value={productData.productName} onChange={fetchData} id="productName" placeholder="ProductName" required />
+                    <div className="mb-2">
+                      <label className="form-label small fw-semibold">Product Name</label>
+                      <input 
+                        className="input" 
+                        type="text" 
+                        name="productName" 
+                        value={productData.productName} 
+                        onChange={fetchData} 
+                        placeholder="e.g. Sony Alpha A7 III Camera" 
+                        required 
+                      />
+                    </div>
 
-                    <select className='input itemSelect form-control' value={productData.productCategory} name="productCategory" id="" onChange={fetchData}>
-                      <option className='text-secondary' value="" disabled>--Select Category--</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="furniture">Furniture</option>
-                    </select>
+                    <div className="mb-2">
+                      <label className="form-label small fw-semibold">Category</label>
+                      <select 
+                        className='input itemSelect form-control' 
+                        value={productData.productCategory} 
+                        name="productCategory" 
+                        onChange={fetchData}
+                        required
+                      >
+                        <option value="" disabled>-- Select Category --</option>
+                        <option value="electronics">Electronics & Cameras</option>
+                        <option value="furniture">Furniture & Decor</option>
+                        <option value="appliances">Home Appliances</option>
+                        <option value="vehicles">Vehicles & Bikes</option>
+                        <option value="tools">Tools & Equipment</option>
+                      </select>
+                    </div>
 
-                    <textarea className='input' name="productDescription" id="productDescription" placeholder='ProductDescription' value={productData.productDescription} onChange={fetchData}  ></textarea>
+                    <div className="mb-2">
+                      <label className="form-label small fw-semibold">Description</label>
+                      <textarea 
+                        className='input' 
+                        name="productDescription" 
+                        placeholder='Describe condition, specs, security deposit requirements...' 
+                        value={productData.productDescription} 
+                        onChange={fetchData} 
+                        rows="3"
+                      ></textarea>
+                    </div>
 
-                    <input className="input" type="number" name="productPrice" id="productPrice" value={productData.productPrice} onChange={fetchData} placeholder="RentPrice" required />
+                    <div className="mb-2">
+                      <label className="form-label small fw-semibold">Rental Price (₹ / day)</label>
+                      <input 
+                        className="input" 
+                        type="number" 
+                        min="1"
+                        name="productPrice" 
+                        value={productData.productPrice} 
+                        onChange={fetchData} 
+                        placeholder="e.g. 500" 
+                        required 
+                      />
+                    </div>
 
-                    <label htmlFor="file">Upload Pic</label>
-                    <input className='input' type="file" ref={fileInputRef} id='file' name='pic' onChange={fetchData} accept='images/*,application/pdf' placeholder='Upload Image or Document' required />
+                    <div className="mb-3">
+                      <label className="form-label small fw-semibold">Upload Product Image</label>
+                      <input 
+                        className='input' 
+                        type="file" 
+                        ref={fileInputRef} 
+                        name='pic' 
+                        onChange={fetchData} 
+                        accept='image/*' 
+                        required 
+                      />
+                    </div>
 
-
-                    <input className="login-button" type="submit" value="Submit" />
-
+                    <button 
+                      className="login-button mt-2 d-flex align-items-center justify-content-center" 
+                      type="submit"
+                      disabled={loading}
+                    >
+                      {loading ? <ClipLoader size={20} color="white" /> : "Publish Listing"}
+                    </button>
                   </form>
-
                 </div>
               </div>
             </div>
-
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </>
   )
